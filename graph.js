@@ -21,40 +21,45 @@ function Node(graph, func) {
     return f;
 }
 
-class Graph {
-    constructor(graph) {
-        for (let key in graph) {
-            var value = graph[key];
-            if (typeof value == 'function') {
-                Object.defineProperty(this, key, {
-                    configurable: true,
-                    get: Node(this, value)
-                });
-            } else {
-                Object.defineProperty(this, key, {
-                    value: value
-                });
+function Graph(graph) {
+    for (let key in graph) {
+        let value = graph[key];
+        if (typeof value == 'function') {
+            let func;
+            try {
+                func = new Function('__graph__', `with (__graph__) return (${value})();`);
+            } catch (e) {
+                func = new Function('__graph__', `with (__graph__) return (function ${value})();`);
             }
+            Object.defineProperty(this, key, {
+                configurable: true,
+                get: Node(this, func)
+            });
+        } else {
+            Object.defineProperty(this, key, {
+                value: value
+            });
         }
-    }
-
-    solve() {
-        var solution = {};
-        Object.getOwnPropertyNames(this).forEach(function(key) {
-            solution[key] = this[key]
-        }, this);
-        return solution;
     }
 }
 
+var globalVar = 10;
+
 var graph = new Graph({
-    a: (G) => G.b*G.b,
-    b: (G) => G.c - G.d,
-    c: (G) => G.e.reduce((acc, elem) => acc + elem),
+    // We can use different function declarations
+    a() { return b*b; },
+    b: function() { return c - d; },
+    c: () => e.reduce((acc, elem) => acc + elem),
+    // Also we can use constants
     d: 2,
     e: [1, 2, 3],
-    f: (G) => G.a + G.a
+    // This is how to capture something from outside
+    f: globalVar,
+    g: () => a + f,
+     // And here is a way to access graph itself
+    h: () => Object.getOwnPropertyNames(__graph__)
 });
 
 console.log(graph.a);
-console.log(graph.solve());
+console.log(graph.g);
+console.log(graph.h);
