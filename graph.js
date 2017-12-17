@@ -1,13 +1,13 @@
 'use strict'
 
-function Node(func) {
+function Node(graph, func) {
     var f = function() {
-        if (f.evaluating) {
-            throw 'Cyclic graphs are not allowed';
-        }
         if (!f.evaluated) {
+            if (f.evaluating) {
+                throw 'Cyclic graphs are not allowed';
+            }
             f.evaluating = true;
-            f.value = func();
+            f.value = func(graph);
             f.evaluating = false;
             f.evaluated = true;
         }
@@ -22,56 +22,39 @@ function Node(func) {
 }
 
 class Graph {
-    receive(graph) {
-        this.nodes = eval(Object.keys(graph).reduce((expr, key) => 
-            expr + 'var ' + key + ' = nodes[\'' + key + '\'] = Node(' + graph[key] + '); ',
-            'var nodes = {}; '
-        ) + 'nodes');
+    constructor(graph) {
+        for (let key in graph) {
+            var value = graph[key];
+            if (typeof value == 'function') {
+                Object.defineProperty(this, key, {
+                    configurable: true,
+                    get: Node(this, value)
+                });
+            } else {
+                Object.defineProperty(this, key, {
+                    value: value
+                });
+            }
+        }
     }
-}
 
-class LazyGraph extends Graph {
-    solve(vertex) {
-        return this.nodes[vertex]();
-    }
-}
-
-class EagerGraph extends Graph {
     solve() {
         var solution = {};
-
-        for (let key in this.nodes) {
-            solution[key] = this.nodes[key]();
-        }
-
+        Object.getOwnPropertyNames(this).forEach(function(key) {
+            solution[key] = this[key]
+        }, this);
         return solution;
     }
 }
 
-var graph = {
-    a: () => b()*b(),
-    b: () => c() - d(),
-    c: () => e().reduce((acc, elem) => acc + elem),
-    d: () => 2,
-    e: () => [1, 2, 3],
-    f: () => a() + a()
-};
-
-var lazy = new LazyGraph();
-lazy.receive(graph);
-console.log(lazy.solve('a'));
-
-var eager = new EagerGraph();
-eager.receive(graph);
-console.log(eager.solve());
-
-eager.receive({
-    a: () => b()*a(),
-    b: () => a()*b(),
+var graph = new Graph({
+    a: (G) => G.b*G.b,
+    b: (G) => G.c - G.d,
+    c: (G) => G.e.reduce((acc, elem) => acc + elem),
+    d: 2,
+    e: [1, 2, 3],
+    f: (G) => G.a + G.a
 });
 
-try {
-    eager.solve('a');
-} catch (e) {
-    console.log(e);
-}
+console.log(graph.a);
+console.log(graph.solve());
