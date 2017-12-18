@@ -32,7 +32,6 @@ function Graph(graph) {
                 func = new Function('__graph__', `with (__graph__) return (function ${value})();`);
             }
             Object.defineProperty(this, key, {
-                configurable: true,
                 get: Node(this, func)
             });
         } else {
