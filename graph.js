@@ -27,9 +27,13 @@ function Graph(graph) {
         if (typeof value == 'function') {
             let func;
             try {
-                func = new Function('__graph__', `with (__graph__) return (${value})();`);
-            } catch (e) {
                 func = new Function('__graph__', `with (__graph__) return (function ${value})();`);
+            } catch (e) {
+                try {
+                    func = new Function('__graph__', `with (__graph__) return (${value})();`);
+                } catch (e) {
+                    func = value;
+                }
             }
             Object.defineProperty(this, key, {
                 get: Node(this, func)
@@ -42,7 +46,9 @@ function Graph(graph) {
     }
 }
 
-var globalVar = 10;
+console.log();
+
+var globalObj = { someVal: 10, someFun: (a, b) => a + b };
 
 var graph = new Graph({
     // We can use different function declarations
@@ -53,12 +59,23 @@ var graph = new Graph({
     d: 2,
     e: [1, 2, 3],
     // This is how to capture something from outside
-    f: globalVar,
-    g: () => a + f,
-     // And here is a way to access graph itself
-    h: () => Object.getOwnPropertyNames(__graph__)
+    f: globalObj,
+    g: () => f.someFun(a, f.someVal),
+    // And here is a way to access graph itself
+    h: () => Object.getOwnPropertyNames(__graph__),
+    // Why not to use custom keys?
+    42: 1,
+    '!@#$%': 2,
+    i: () => __graph__[42] + __graph__['!@#$%'],
+    // Oh, well...
+    j: { b: 10, c: () => (a) => a*b },
+    k: [Graph],
+    l: () => new k[0](j),
+    m: () => l.c(a)
 });
 
 console.log(graph.a);
 console.log(graph.g);
 console.log(graph.h);
+console.log(graph.i);
+console.log(graph.m);
