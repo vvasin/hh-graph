@@ -42,6 +42,15 @@ describe('Graph', function() {
       expect(graph.a).to.be.a('number');
       expect(graph.a).to.equal(1);
     });
+
+    it('should be accessed by computational nodes', function() {
+      let graph = new Graph({
+        a: 1,
+        b: () => a
+      });
+
+      expect(graph.b).to.equal(1);
+    });
   });
 
   describe('Computational nodes', function() {
@@ -53,13 +62,14 @@ describe('Graph', function() {
       expect(graph.a).to.equal(2);
     });
 
-    it('should access static nodes', function() {
+    it('should access other nodes', function() {
       let graph = new Graph({
         a: 1,
-        b: () => a
+        b: () => a,
+        c: () => b + b
       });
 
-      expect(graph.b).to.equal(1);
+      expect(graph.c).to.equal(2);
     });
 
     it('should be lazy', function() {
