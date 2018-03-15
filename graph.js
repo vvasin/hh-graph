@@ -46,37 +46,3 @@ function Graph(graph) {
         }
     }
 }
-
-console.log();
-
-var globalObj = { someVal: 10, someFun: (a, b) => a + b };
-
-var graph = new Graph({
-    // We can use different function declarations
-    a() { return b*b; },
-    b: function() { return c - d; },
-    c: () => e.reduce((acc, elem) => acc + elem),
-    // Also we can use constants
-    d: 2,
-    e: [1, 2, 3],
-    // This is how to capture something from outside
-    f: globalObj,
-    g: () => f.someFun(a, f.someVal),
-    // And here is a way to access graph itself
-    h: () => Object.getOwnPropertyNames(__graph__),
-    // Why not to use custom keys?
-    42: 1,
-    '!@#$%': 2,
-    i: () => __graph__[42] + __graph__['!@#$%'],
-    // Oh, well...
-    j: { b: 10, c: () => (a) => a*b },
-    k: [Graph],
-    l: () => new k[0](j),
-    m: () => l.c(a)
-});
-
-console.log(graph.a);
-console.log(graph.g);
-console.log(graph.h);
-console.log(graph.i);
-console.log(graph.m);
