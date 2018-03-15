@@ -1,0 +1,19 @@
+{
+  "name": "hh-graph",
+  "version": "1.0.0",
+  "description": "computational graph javascript implementation for hh-school",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://neuralnull@github.com/neuralnull/hh-graph.git"
+  },
+  "author": "Vitaly Vasin <neural.null@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/neuralnull/hh-graph/issues"
+  },
+  "homepage": "https://github.com/neuralnull/hh-graph#readme"
+}

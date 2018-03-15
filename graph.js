@@ -46,3 +46,5 @@ function Graph(graph) {
         }
     }
 }
+
+module.exports = Graph;
